@@ -88,3 +88,11 @@ model PasswordResetToken {
   @@index([tokenHash])
   @@index([userId])
 }
+
+model WifiMonthlySetting {
+  month     String   @id // "YYYY-MM", based on meeting date
+  ssid      String
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

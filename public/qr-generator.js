@@ -8,13 +8,13 @@
 
   function QR8bitByte(data) {
     this.mode = 4;
-    this.data = data;
+    this.data = new TextEncoder().encode(data);
   }
   QR8bitByte.prototype = {
     getLength: function () { return this.data.length; },
     write: function (buffer) {
       for (var i = 0; i < this.data.length; i++) {
-        buffer.put(this.data.charCodeAt(i), 8);
+        buffer.put(this.data[i], 8);
       }
     }
   };

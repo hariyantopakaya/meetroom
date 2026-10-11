@@ -1,3 +1,9 @@
+// This destructive demo tool must never run against production.
+if (process.env.NODE_ENV !== 'development' || process.env.ALLOW_DEMO_SEED !== 'true') {
+  console.error('Demo seeding is disabled. Use only with NODE_ENV=development and ALLOW_DEMO_SEED=true on a disposable development database.');
+  process.exit(1);
+}
+
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 

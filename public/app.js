@@ -3,7 +3,7 @@
 /* ============================================ */
 
 let currentUser = null;
-let currentCalendarDate = new Date('2026-08-29T00:00:00'); // Seed reference date or current date
+let currentCalendarDate = new Date();
 let calendarViewMode = 'week'; // 'week' | 'day'
 let currentBookingsPage = 1;
 let currentUsersPage = 1;
@@ -156,7 +156,7 @@ function showToast(message, type = 'success') {
   toast.className = `toast toast--${type}`;
   toast.innerHTML = `
     <span class="toast-icon">${icons[type] || icons.info}</span>
-    <span class="toast-msg">${message}</span>
+    <span class="toast-msg">${escapeHtml(message)}</span>
   `;
 
   container.appendChild(toast);
@@ -226,6 +226,7 @@ async function checkAuthSession() {
 }
 
 function setUserSession(user) {
+  clearWifiSensitiveState();
   currentUser = user;
 
   // Update UI user info
@@ -281,6 +282,8 @@ function setUserSession(user) {
     mgmtSection.forEach((el) => (el.style.display = 'none'));
     if (userReportCard) userReportCard.style.display = 'none';
   }
+  const wifiNav = document.getElementById('nav-wifi');
+  if (wifiNav) wifiNav.style.display = user.role === 'ADMIN' ? '' : 'none';
 }
 
 async function handleLogin(e) {
@@ -416,6 +419,7 @@ async function handleLogout() {
   } catch {
     // Ignore error
   }
+  clearWifiSensitiveState();
   currentUser = null;
   showToast('Signed out successfully.', 'info');
   showScreen('screen-login');
@@ -478,6 +482,10 @@ async function loadDashboardStats() {
   }
 }
 
+function canViewBookingDetails(booking) {
+  return Boolean(currentUser && (['ADMIN', 'RECEPTIONIST'].includes(currentUser.role) || booking.userId === currentUser.id));
+}
+
 function renderTodayTimeline(bookings) {
   const container = document.getElementById('today-timeline-container');
   if (!container) return;
@@ -497,7 +505,7 @@ function renderTodayTimeline(bookings) {
       const isFirst = idx === 0;
 
       return `
-      <div class="timeline-item" onclick="openBookingDetailModal('${b.id}')" style="cursor:pointer">
+      <div class="timeline-item" ${canViewBookingDetails(b) ? `onclick="openBookingDetailModal('${b.id}')" style="cursor:pointer"` : ''}>
         <div class="timeline-time">${b.startTime} – ${b.endTime}</div>
         <div class="timeline-bar ${isFirst ? 'timeline-bar--active' : 'timeline-bar--upcoming'}"></div>
         <div class="timeline-content">
@@ -672,7 +680,7 @@ function renderCalendarGrid(days, events) {
               <div class="cal-event ${colorClass} ${rescheduleClass}" 
                    style="top: calc(${topSlot} * var(--slot-h)); height: calc(${heightSlot} * var(--slot-h));"
                    title="${escapeHtml(b.topic)} (${b.startTime}–${b.endTime}) - ${escapeHtml(b.user?.fullName || '')}"
-                   onclick="event.stopPropagation(); openBookingDetailModal('${b.id}')">
+                   onclick="event.stopPropagation(); ${canViewBookingDetails(b) ? `openBookingDetailModal('${b.id}')` : ''}">
                 <span class="cal-event-time">${b.startTime}–${b.endTime}</span>
                 <span class="cal-event-title">${escapeHtml(b.topic)}</span>
                 <span class="cal-event-meta">${escapeHtml(b.user?.fullName || '')}</span>
@@ -766,7 +774,7 @@ async function loadBookings(page = 1) {
               <button class="icon-btn" title="View Details" onclick="openBookingDetailModal('${b.id}')">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
-              <button class="icon-btn" title="${b.wifiSsid ? 'Lihat Voucher Wi-Fi' : 'Buat Voucher Wi-Fi'}" onclick="openVoucherForBooking('${b.id}')" style="${b.wifiSsid ? 'color:var(--violet-500);' : ''}">
+              <button class="icon-btn" title="${b.wifiSsid ? 'Lihat Voucher Wi-Fi' : 'Wi-Fi bulan ini belum diatur'}" onclick="openVoucherForBooking('${b.id}')" style="${b.wifiSsid ? 'color:var(--violet-500);' : ''}">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
               </button>
               ${
@@ -916,167 +924,124 @@ function renderPagination(container, currentPage, totalPages, callback) {
 // Wi-Fi Voucher & Setup Popup Logic
 // ============================================
 
-let newBookingWifi = {
-  enabled: false,
-  ssid: localStorage.getItem('last_wifi_ssid') || 'RoomSync-Guest',
-  password: '',
-};
-
-let editingWifiForBookingId = null;
 let currentVoucherBooking = null;
+let wifiMonthLoadId = 0;
+let wifiMonthLoading = false;
+let pendingVoucherBookingId = null;
+let wifiSessionVersion = 0;
 
-function generateReadableWifiPassword() {
-  return 'M3et1NgR0oM@2026';
-}
-
-function updateWifiVoucherToggleUI() {
-  const toggle = document.getElementById('booking-wifi-toggle');
-  const badge = document.getElementById('wifi-active-badge');
-  const preview = document.getElementById('wifi-config-preview');
-  const desc = document.getElementById('wifi-card-desc');
-  const ssidEl = document.getElementById('preview-wifi-ssid');
-  const passEl = document.getElementById('preview-wifi-pass');
-
-  if (toggle) toggle.checked = newBookingWifi.enabled;
-
-  if (newBookingWifi.enabled) {
-    if (badge) badge.style.display = 'inline-block';
-    if (preview) preview.style.display = 'flex';
-    if (desc) desc.textContent = 'Voucher Wi-Fi siap disertakan saat booking dikonfirmasi';
-    if (ssidEl) ssidEl.textContent = newBookingWifi.ssid || 'RoomSync-Guest';
-    if (passEl) passEl.textContent = newBookingWifi.password ? '••••••••' : '(Belum diatur)';
-  } else {
-    if (badge) badge.style.display = 'none';
-    if (preview) preview.style.display = 'none';
-    if (desc) desc.textContent = 'Buat voucher akses internet untuk peserta meeting';
+function clearWifiSensitiveState() {
+  wifiSessionVersion++;
+  wifiMonthLoadId++;
+  wifiMonthLoading = false;
+  pendingVoucherBookingId = null;
+  currentVoucherBooking = null;
+  selectedBookingDetail = null;
+  for (const id of ['wifi-input-month', 'wifi-input-ssid', 'wifi-input-password']) {
+    const input = document.getElementById(id);
+    if (input) { input.value = ''; input.disabled = false; }
   }
-}
-
-function handleWifiToggleChange(checked) {
-  newBookingWifi.enabled = checked;
-  if (checked) {
-    if (!newBookingWifi.password) {
-      newBookingWifi.password = generateReadableWifiPassword();
-    }
-    updateWifiVoucherToggleUI();
-    // Prompt the Wi-Fi setup popup immediately as requested
-    editingWifiForBookingId = null;
-    openWifiSetupModal();
-  } else {
-    updateWifiVoucherToggleUI();
+  for (const id of ['voucher-ssid', 'voucher-password', 'wifi-month-status']) {
+    const element = document.getElementById(id);
+    if (element) element.textContent = '';
   }
+  const qr = document.getElementById('voucher-qr-container');
+  if (qr) qr.innerHTML = '';
+  document.querySelectorAll('.modal-overlay.visible').forEach(modal => modal.classList.remove('visible'));
 }
 
-function openWifiSetupModal() {
+async function openMonthlyWifiSettings(month = formatDateISO(new Date()).slice(0, 7), bookingId = null) {
+  if (currentUser?.role !== 'ADMIN') return;
+  pendingVoucherBookingId = bookingId;
+  document.getElementById('wifi-input-month').value = month;
+  showModal('modal-wifi-setup');
+  await loadMonthlyWifiSettings();
+}
+
+async function loadMonthlyWifiSettings() {
+  const month = document.getElementById('wifi-input-month').value;
+  const requestId = ++wifiMonthLoadId;
   const ssidInput = document.getElementById('wifi-input-ssid');
   const passInput = document.getElementById('wifi-input-password');
-
-  if (editingWifiForBookingId && selectedBookingDetail) {
-    ssidInput.value = selectedBookingDetail.wifiSsid || localStorage.getItem('last_wifi_ssid') || 'RoomSync-Guest';
-    passInput.value = selectedBookingDetail.wifiPassword || generateReadableWifiPassword();
-  } else {
-    ssidInput.value = newBookingWifi.ssid || localStorage.getItem('last_wifi_ssid') || 'RoomSync-Guest';
-    passInput.value = newBookingWifi.password || generateReadableWifiPassword();
-  }
-
-  showModal('modal-wifi-setup');
-  setTimeout(() => {
-    ssidInput.focus();
-  }, 100);
-}
-
-function generateRandomWifiPassword() {
-  const passInput = document.getElementById('wifi-input-password');
-  if (passInput) {
-    passInput.value = generateReadableWifiPassword();
+  const status = document.getElementById('wifi-month-status');
+  const button = document.getElementById('btn-save-monthly-wifi');
+  ssidInput.value = '';
+  passInput.value = '';
+  wifiMonthLoading = true;
+  button.disabled = true;
+  status.textContent = 'Memuat pengaturan Wi-Fi...';
+  try {
+    if (!month) throw new Error('Pilih bulan untuk pengaturan Wi-Fi.');
+    const { setting } = await apiRequest('/api/wifi/' + encodeURIComponent(month));
+    if (requestId !== wifiMonthLoadId) return;
+    ssidInput.value = setting?.ssid || '';
+    passInput.value = setting?.password || '';
+    status.textContent = setting
+      ? 'Pengaturan tersimpan untuk ' + month + '. Perubahan berlaku untuk seluruh voucher bulan ini.'
+      : 'Wi-Fi bulan ' + month + ' belum diatur. Isi kredensial yang berlaku di router.';
+  } catch (err) {
+    if (requestId === wifiMonthLoadId) {
+      status.textContent = 'Pengaturan belum dapat dimuat.';
+      showToast(err.message, 'error');
+    }
+  } finally {
+    if (requestId === wifiMonthLoadId) {
+      wifiMonthLoading = false;
+      button.disabled = false;
+    }
   }
 }
 
 function toggleWifiInputVisibility() {
-  const passInput = document.getElementById('wifi-input-password');
-  const eyeIcon = document.getElementById('wifi-eye-icon');
-  if (!passInput) return;
-
-  if (passInput.type === 'password') {
-    passInput.type = 'text';
-    if (eyeIcon) {
-      eyeIcon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
-    }
-  } else {
-    passInput.type = 'password';
-    if (eyeIcon) {
-      eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
-    }
-  }
+  const input = document.getElementById('wifi-input-password');
+  if (input) input.type = input.type === 'password' ? 'text' : 'password';
 }
 
 async function handleSaveWifiSetup(e) {
-  if (e && typeof e.preventDefault === 'function') {
-    e.preventDefault();
-    e.stopPropagation();
-  }
-
-  const ssid = document.getElementById('wifi-input-ssid').value.trim();
-  const password = document.getElementById('wifi-input-password').value.trim();
-
-  if (!ssid || !password) {
-    showToast('Nama Wi-Fi dan Password harus diisi!', 'warning');
-    return false;
-  }
-
+  e.preventDefault();
+  if (currentUser?.role !== 'ADMIN' || wifiMonthLoading) return false;
+  const monthInput = document.getElementById('wifi-input-month');
+  const month = monthInput.value;
+  const ssid = document.getElementById('wifi-input-ssid').value;
+  const password = document.getElementById('wifi-input-password').value;
+  const button = document.getElementById('btn-save-monthly-wifi');
+  button.disabled = true;
+  monthInput.disabled = true;
   try {
-    localStorage.setItem('last_wifi_ssid', ssid);
-  } catch {}
-
-  // Case 1: Updating an existing booking
-  if (editingWifiForBookingId) {
-    try {
-      const res = await apiRequest(`/api/bookings/${editingWifiForBookingId}/wifi`, {
-        method: 'PATCH',
-        body: { wifiSsid: ssid, wifiPassword: password },
-      });
-
-      closeModal('modal-wifi-setup');
-      showToast('Voucher Wi-Fi berhasil diperbarui!', 'success');
-
-      if (selectedBookingDetail && selectedBookingDetail.id === editingWifiForBookingId) {
-        selectedBookingDetail.wifiSsid = ssid;
-        selectedBookingDetail.wifiPassword = password;
-      }
-
-      loadBookings(currentBookingsPage);
-      showWifiVoucherModal(res.booking || selectedBookingDetail);
-    } catch (err) {
-      showToast(err.message, 'error');
-    } finally {
-      editingWifiForBookingId = null;
-    }
-    return false;
+    const result = await apiRequest('/api/wifi/' + encodeURIComponent(month), {
+      method: 'PUT', body: { ssid, password },
+    });
+    closeModal('modal-wifi-setup');
+    showToast(result.message, 'success');
+    loadBookings(currentBookingsPage);
+    const bookingId = pendingVoucherBookingId;
+    pendingVoucherBookingId = null;
+    if (bookingId) await openVoucherForBooking(bookingId);
+  } catch (err) {
+    showToast(err.message, 'error');
+  } finally {
+    button.disabled = false;
+    monthInput.disabled = false;
   }
-
-  // Case 2: Setting up for New Booking
-  newBookingWifi.ssid = ssid;
-  newBookingWifi.password = password;
-  newBookingWifi.enabled = true;
-
-  updateWifiVoucherToggleUI();
-  closeModal('modal-wifi-setup');
-  showToast('Pengaturan Wi-Fi disimpan. Siap untuk booking!', 'success');
   return false;
 }
 
 function showWifiVoucherModal(booking) {
-  if (!booking) return;
+  if (!booking || !canViewBookingDetails(booking)) return;
   currentVoucherBooking = booking;
 
   document.getElementById('voucher-topic').textContent = booking.topic || 'Meeting Reservation';
   document.getElementById('voucher-guest-name').textContent = booking.user?.fullName || currentUser?.fullName || 'Tamu';
   document.getElementById('voucher-company').textContent = booking.user?.company || currentUser?.company || '-';
-  document.getElementById('voucher-room').textContent = booking.room?.name || 'Main Conference Room';
+  document.getElementById('voucher-room').textContent = booking.room?.name || '-';
   document.getElementById('voucher-schedule').textContent = `${booking.bookingDate} • ${booking.startTime} – ${booking.endTime}`;
 
-  const ssid = booking.wifiSsid || newBookingWifi.ssid || 'RoomSync-Guest';
-  const password = booking.wifiPassword || newBookingWifi.password || '-';
+  const ssid = booking.wifiSsid || '';
+  const password = booking.wifiPassword || '';
+  if (!ssid || !password) {
+    showToast('Isi kredensial Wi-Fi yang sebenarnya sebelum membuat voucher.', 'error');
+    return;
+  }
 
   document.getElementById('voucher-ssid').textContent = ssid;
   document.getElementById('voucher-password').textContent = password;
@@ -1090,7 +1055,8 @@ function showWifiVoucherModal(booking) {
   const qrContainer = document.getElementById('voucher-qr-container');
   if (qrContainer) {
     if (typeof window.generateQRCodeSVG === 'function') {
-      const wifiQrString = `WIFI:T:WPA;S:${ssid};P:${password};;`;
+      const escapeWifi = value => value.replace(/[\\;,:\"]/g, char => String.fromCharCode(92) + char);
+      const wifiQrString = `WIFI:T:WPA;S:${escapeWifi(ssid)};P:${escapeWifi(password)};;`;
       qrContainer.innerHTML = window.generateQRCodeSVG(wifiQrString, 130, '#0f172a', '#ffffff');
     } else {
       qrContainer.innerHTML = '<div style="font-size:12px;color:#94a3b8;padding:1rem;">QR Code Ready</div>';
@@ -1101,14 +1067,16 @@ function showWifiVoucherModal(booking) {
 }
 
 async function openVoucherForBooking(bookingId) {
+  const sessionVersion = wifiSessionVersion;
   try {
     const { booking } = await apiRequest(`/api/bookings/${bookingId}`);
+    if (sessionVersion !== wifiSessionVersion || !currentUser) return;
     if (booking.wifiSsid && booking.wifiPassword) {
       showWifiVoucherModal(booking);
     } else {
-      selectedBookingDetail = booking;
-      editingWifiForBookingId = booking.id;
-      openWifiSetupModal();
+      const month = booking.bookingDate.slice(0, 7);
+      if (currentUser?.role === 'ADMIN') await openMonthlyWifiSettings(month, booking.id);
+      else showToast('Wi-Fi bulan ' + month + ' belum diatur oleh admin.', 'info');
     }
   } catch (err) {
     showToast(err.message, 'error');
@@ -1117,12 +1085,7 @@ async function openVoucherForBooking(bookingId) {
 
 function openVoucherFromDetail() {
   if (!selectedBookingDetail) return;
-  if (selectedBookingDetail.wifiSsid && selectedBookingDetail.wifiPassword) {
-    showWifiVoucherModal(selectedBookingDetail);
-  } else {
-    editingWifiForBookingId = selectedBookingDetail.id;
-    openWifiSetupModal();
-  }
+  openVoucherForBooking(selectedBookingDetail.id);
 }
 
 function copyWifiSsid() {
@@ -1150,7 +1113,7 @@ function copyFullVoucherText() {
   const b = currentVoucherBooking;
   const text = `🎟️ *VOUCHER AKSES WI-FI RUANG MEETING*
 ━━━━━━━━━━━━━━━━━━━━━━
-🏢 Ruangan: ${b.room?.name || 'Main Conference Room'}
+🏢 Ruangan: ${b.room?.name || '-'}
 📌 Topik: ${b.topic}
 📅 Jadwal: ${b.bookingDate} (${b.startTime} - ${b.endTime})
 👤 Pemesan: ${b.user?.fullName || currentUser?.fullName || '-'} (${b.user?.company || currentUser?.company || '-'})
@@ -1191,15 +1154,6 @@ function openNewBookingModal(prefilledDate = null) {
 
   document.getElementById('booking-start').value = '09:00';
   document.getElementById('booking-end').value = '10:30';
-
-  // Reset Wi-Fi voucher state
-  newBookingWifi = {
-    enabled: false,
-    ssid: localStorage.getItem('last_wifi_ssid') || 'RoomSync-Guest',
-    password: '',
-  };
-  editingWifiForBookingId = null;
-  updateWifiVoucherToggleUI();
 
   checkAvailabilityLive();
   showModal('modal-new-booking');
@@ -1277,9 +1231,6 @@ async function handleCreateBooking(e) {
 
     const payload = { date, startTime, endTime, topic };
     
-    // Auto-generate Wi-Fi for all new bookings
-    payload.wifiSsid = newBookingWifi.ssid || localStorage.getItem('last_wifi_ssid') || 'RoomSync-Guest';
-    payload.wifiPassword = generateReadableWifiPassword();
 
     const data = await apiRequest('/api/bookings', {
       method: 'POST',
@@ -1287,7 +1238,7 @@ async function handleCreateBooking(e) {
     });
 
     closeModal('modal-new-booking');
-    showToast(data.message || 'Booking confirmed successfully!', 'success');
+    showToast(data.message || 'Booking confirmed successfully!', data.booking?.emailDelivery === 'failed' ? 'warning' : 'success');
 
     // Refresh all views
     loadDashboardStats();
@@ -1396,11 +1347,10 @@ async function openBookingDetailModal(bookingId) {
     const voucherBtn = document.getElementById('btn-detail-voucher');
     if (voucherBtn) {
       voucherBtn.style.display = !isCancelled ? '' : 'none';
-      voucherBtn.title = booking.wifiSsid ? 'Lihat / Cetak Voucher Wi-Fi' : 'Buat Voucher Wi-Fi untuk Booking ini';
+      voucherBtn.title = booking.wifiSsid ? 'Lihat / Cetak Voucher Wi-Fi' : 'Wi-Fi bulan ini belum diatur';
       voucherBtn.style.color = booking.wifiSsid ? 'var(--violet-500)' : '';
     }
 
-    editingWifiForBookingId = null; // reset on each open
 
     showModal('modal-booking-detail');
   } catch (err) {
@@ -1458,7 +1408,7 @@ async function handleRescheduleSubmit(e) {
     });
 
     closeModal('modal-reschedule');
-    showToast(data.message || 'Booking rescheduled successfully!', 'success');
+    showToast(data.message || 'Booking rescheduled successfully!', data.booking?.emailDelivery === 'failed' ? 'warning' : 'success');
 
     loadDashboardStats();
     loadCalendar();
@@ -1614,7 +1564,8 @@ function initReportsSection() {
 
 function exportMonthlyReport(format) {
   const select = document.getElementById('report-month-select');
-  const [year, month] = (select ? select.value : '2026-8').split('-');
+  const today = new Date();
+  const [year, month] = (select ? select.value : `${today.getFullYear()}-${today.getMonth() + 1}`).split('-');
 
   showToast(`Generating ${format.toUpperCase()} monthly booking report...`, 'info');
   window.open(`/api/reports/bookings/${format}?year=${year}&month=${month}`, '_blank');

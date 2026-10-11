@@ -5,6 +5,7 @@ const { authenticate } = require('../middleware/auth');
 const { bookingLimiter } = require('../middleware/rateLimiter');
 
 const router = express.Router();
+router.use((req, res, next) => { res.set('Cache-Control', 'no-store'); next(); });
 
 const bookingSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
@@ -12,8 +13,6 @@ const bookingSchema = z.object({
   endTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Invalid end time format (HH:mm)'),
   topic: z.string().min(3, 'Meeting topic must be at least 3 characters'),
   forUserId: z.string().optional(), // Allow staff/admin to book on behalf of user
-  wifiSsid: z.string().optional().nullable(),
-  wifiPassword: z.string().optional().nullable(),
 });
 
 const rescheduleSchema = z.object({
@@ -95,12 +94,12 @@ router.post('/', authenticate, bookingLimiter, async (req, res, next) => {
       startTime: validated.startTime,
       endTime: validated.endTime,
       topic: validated.topic,
-      wifiSsid: validated.wifiSsid,
-      wifiPassword: validated.wifiPassword,
     });
 
     res.status(201).json({
-      message: 'Booking successfully confirmed!',
+      message: booking.emailDelivery === 'failed'
+        ? 'Booking confirmed, but the notification email could not be sent.'
+        : 'Booking successfully confirmed!',
       booking,
     });
   } catch (err) {
@@ -117,7 +116,7 @@ router.post('/', authenticate, bookingLimiter, async (req, res, next) => {
 // Get booking by ID
 router.get('/:id', authenticate, async (req, res, next) => {
   try {
-    const booking = await bookingService.getBookingById(req.params.id);
+    const booking = await bookingService.getBookingById(req.params.id, req.user);
     res.json({ booking });
   } catch (err) {
     next(err);
@@ -140,7 +139,9 @@ router.put('/:id/reschedule', authenticate, bookingLimiter, async (req, res, nex
     });
 
     res.json({
-      message: 'Booking rescheduled successfully!',
+      message: booking.emailDelivery === 'failed'
+        ? 'Booking rescheduled, but the notification email could not be sent.'
+        : 'Booking rescheduled successfully!',
       booking,
     });
   } catch (err) {
@@ -172,23 +173,9 @@ router.post('/:id/cancel', authenticate, async (req, res, next) => {
   }
 });
 
-// Update Wi-Fi credentials for an existing booking
-router.patch('/:id/wifi', authenticate, async (req, res, next) => {
-  try {
-    const { wifiSsid, wifiPassword } = req.body;
-    const booking = await bookingService.updateWifi(
-      req.params.id,
-      { wifiSsid, wifiPassword },
-      req.user
-    );
-
-    res.json({
-      message: 'Wi-Fi credentials updated successfully!',
-      booking,
-    });
-  } catch (err) {
-    next(err);
-  }
+// Per-booking overrides are disabled: only admin monthly settings define Wi-Fi.
+router.patch('/:id/wifi', authenticate, (req, res) => {
+  res.status(405).json({ error: 'Wi-Fi is managed centrally by the administrator for each meeting month.' });
 });
 
 module.exports = router;

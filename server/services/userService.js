@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const prisma = require('../db/prisma');
+const { z } = require('zod');
 
 async function listUsers({ page = 1, limit = 10, search = '', role = '', status = '' }) {
   const skip = (page - 1) * limit;
@@ -63,7 +64,8 @@ async function createUser({ fullName, email, company, role = 'USER', password })
     throw error;
   }
 
-  const hashedPassword = await bcrypt.hash(password || 'Temp@12345', 10);
+  z.string().min(12, 'Password must be at least 12 characters').parse(password);
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   const user = await prisma.user.create({
     data: {
@@ -130,7 +132,8 @@ async function toggleUserStatus(id, isActive) {
 }
 
 async function resetUserPassword(id, newPassword) {
-  const hashedPassword = await bcrypt.hash(newPassword || 'Temp@12345', 10);
+  z.string().min(12, 'Password must be at least 12 characters').parse(newPassword);
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
 
   await prisma.user.update({
     where: { id },

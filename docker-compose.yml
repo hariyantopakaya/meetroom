@@ -1,36 +1,46 @@
-version: '3.8'
-
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
+    image: meetroom:local
     container_name: booking_meeting_app
     restart: unless-stopped
+    init: true
     ports:
-      - "${PORT:-3000}:3000"
+      - "${BIND_ADDRESS:-127.0.0.1}:${PORT:-3000}:3000"
     environment:
-      - NODE_ENV=production
-      - PORT=3000
-      - APP_URL=${APP_URL:-http://localhost:3000}
-      - DATABASE_URL=${DATABASE_URL:-file:./data/prod.db}
-      - JWT_SECRET=${JWT_SECRET:-production_secure_jwt_secret_booking_meeting_2026}
-      - JWT_EXPIRES_IN=7d
-      - COOKIE_SECRET=${COOKIE_SECRET:-production_cookie_secret_booking_meeting_2026}
-      - SMTP_HOST=${SMTP_HOST}
-      - SMTP_PORT=${SMTP_PORT:-587}
-      - SMTP_SECURE=${SMTP_SECURE:-false}
-      - SMTP_USER=${SMTP_USER}
-      - SMTP_PASS=${SMTP_PASS}
-      - SMTP_FROM=${SMTP_FROM:-Booking Meeting <no-reply@bookingmeeting.local>}
+      NODE_ENV: production
+      PORT: "3000"
+      APP_URL: ${APP_URL:?Set the public HTTPS APP_URL in .env.production}
+      # Fixed path matches the volume; never inherit the local dev database URL.
+      DATABASE_URL: file:/app/data/prod.db
+      JWT_SECRET: ${JWT_SECRET:?Set a random JWT_SECRET in .env.production}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      COOKIE_SECRET: ${COOKIE_SECRET:?Set a different random COOKIE_SECRET in .env.production}
+      TRUST_PROXY_HOPS: ${TRUST_PROXY_HOPS:-0}
+      TZ: ${TZ:-Asia/Jakarta}
+      ROOM_NAME: ${ROOM_NAME:?Set the actual ROOM_NAME in .env.production}
+      ROOM_CAPACITY: ${ROOM_CAPACITY:-12}
+      SMTP_HOST: ${SMTP_HOST:?Set SMTP_HOST in .env.production}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      SMTP_USER: ${SMTP_USER:?Set SMTP_USER in .env.production}
+      SMTP_PASS: ${SMTP_PASS:?Set SMTP_PASS in .env.production}
+      SMTP_FROM: ${SMTP_FROM:?Set SMTP_FROM in .env.production}
     volumes:
       - app_data:/app/data
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      test: ["CMD", "node", "scripts/healthcheck.js"]
       interval: 30s
       timeout: 5s
       retries: 3
-      start_period: 10s
+      start_period: 30s
+    stop_grace_period: 15s
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
 
 volumes:
   app_data:

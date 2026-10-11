@@ -14,7 +14,7 @@ const createUserSchema = z.object({
   email: z.string().email('Invalid email address'),
   company: z.string().optional(),
   role: z.enum(['ADMIN', 'RECEPTIONIST', 'USER']).default('USER'),
-  password: z.string().min(8, 'Password must be at least 8 characters').optional(),
+  password: z.string().min(12, 'Password must be at least 12 characters'),
 });
 
 const updateUserSchema = z.object({
@@ -87,7 +87,7 @@ router.put('/:id/status', async (req, res, next) => {
 // Reset user password (Admin)
 router.post('/:id/reset-password', async (req, res, next) => {
   try {
-    const { password } = req.body;
+    const { password } = z.object({ password: z.string().min(12, 'Password must be at least 12 characters') }).parse(req.body);
     const result = await userService.resetUserPassword(req.params.id, password);
     res.json(result);
   } catch (err) {

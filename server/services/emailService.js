@@ -1,6 +1,10 @@
 const { sendMail } = require('../config/mailer');
 const config = require('../config/env');
 
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+}
+
 const baseEmailStyle = `
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   color: #1e293b;
@@ -59,7 +63,7 @@ async function sendBookingConfirmation({ booking, user }) {
           </tr>
           <tr>
             <td style="padding: 6px 0; color: #64748b;"><strong>Meeting Room:</strong></td>
-            <td style="padding: 6px 0;">Main Conference Room</td>
+            <td style="padding: 6px 0;">${escapeHtml(booking.room?.name || '-')}</td>
           </tr>
           <tr>
             <td style="padding: 6px 0; color: #64748b;"><strong>Status:</strong></td>

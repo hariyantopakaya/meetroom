@@ -6,14 +6,17 @@ const compression = require('compression');
 const cookieParser = require('cookie-parser');
 const config = require('./config/env');
 const errorHandler = require('./middleware/errorHandler');
+const prisma = require('./db/prisma');
 
 const authRoutes = require('./routes/auth.routes');
 const bookingRoutes = require('./routes/booking.routes');
 const calendarRoutes = require('./routes/calendar.routes');
 const userRoutes = require('./routes/user.routes');
 const reportRoutes = require('./routes/report.routes');
+const wifiRoutes = require('./routes/wifi.routes');
 
 const app = express();
+app.set('trust proxy', config.TRUST_PROXY_HOPS);
 
 // Security Headers with Helmet
 app.use(
@@ -34,7 +37,14 @@ app.use(
   })
 );
 
-app.use(cors({ origin: true, credentials: true }));
+app.use((req, res, next) => {
+  const origin = req.get('Origin');
+  if (origin && origin !== config.APP_ORIGIN && !['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
+    return res.status(403).json({ error: 'Request origin is not allowed.' });
+  }
+  next();
+});
+app.use(cors({ origin: config.APP_ORIGIN, credentials: true }));
 app.use(compression());
 app.use(cookieParser(config.COOKIE_SECRET));
 app.use(express.json({ limit: '1mb' }));
@@ -57,10 +67,17 @@ app.use('/api/bookings', bookingRoutes);
 app.use('/api/calendar', calendarRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/wifi', wifiRoutes);
 
 // Health check endpoint
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+app.get('/api/health', async (req, res) => {
+  try {
+    await Promise.all([prisma.user, prisma.room, prisma.booking, prisma.rescheduleHistory, prisma.passwordResetToken, prisma.wifiMonthlySetting]
+      .map(model => model.findFirst({ select: { id: true } })));
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  } catch {
+    res.status(503).json({ status: 'unavailable' });
+  }
 });
 
 // SPA fallback: send index.html for any unhandled GET request

@@ -46,14 +46,14 @@
             <label class="form-label" for="login-email">Email Address</label>
             <div class="input-wrapper">
               <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m2 7 10 7 10-7"/></svg>
-              <input id="login-email" class="form-input" type="email" placeholder="name@company.com" required value="sarah@admin.local">
+              <input id="login-email" class="form-input" type="email" placeholder="name@company.com" autocomplete="username" required>
             </div>
           </div>
           <div class="form-group">
             <label class="form-label" for="login-password">Password</label>
             <div class="input-wrapper">
               <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><circle cx="12" cy="16" r="1"/></svg>
-              <input id="login-password" class="form-input" type="password" placeholder="••••••••" required value="password123">
+              <input id="login-password" class="form-input" type="password" placeholder="••••••••" autocomplete="current-password" required>
             </div>
           </div>
           <div class="form-row">
@@ -297,6 +297,10 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             <span>Users</span>
           </a>
+          <a class="nav-item" id="nav-wifi" onclick="openMonthlyWifiSettings()" style="display:none">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg>
+            <span>Wi-Fi Bulanan</span>
+          </a>
           <a class="nav-item nav-report-item" id="nav-reports" onclick="showDashboardSection('reports')">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
             <span>Reports</span>
@@ -305,10 +309,10 @@
 
         <div class="sidebar-footer">
           <div class="sidebar-user">
-            <div class="avatar avatar--sm" id="sidebar-user-avatar">SA</div>
+            <div class="avatar avatar--sm" id="sidebar-user-avatar">-</div>
             <div class="sidebar-user-info">
-              <span class="sidebar-user-name" id="sidebar-user-name">Sarah Admin</span>
-              <span class="sidebar-user-role" id="sidebar-user-role">Administrator</span>
+              <span class="sidebar-user-name" id="sidebar-user-name">Loading...</span>
+              <span class="sidebar-user-role" id="sidebar-user-role">-</span>
             </div>
           </div>
           <a class="nav-item nav-item--logout" onclick="handleLogout()">
@@ -339,7 +343,7 @@
         <div class="content-area" id="section-dashboard">
           <div class="content-header animate-in">
             <div>
-              <h2 class="content-title" id="dash-greeting">Good afternoon, Sarah 👋</h2>
+              <h2 class="content-title" id="dash-greeting">Welcome</h2>
               <p class="content-subtitle">Here's what's happening with your meeting room today</p>
             </div>
             <div class="content-header-actions">
@@ -922,7 +926,7 @@
             </div>
             <div class="form-group">
               <label class="form-label" for="newuser-password">Initial Password</label>
-              <div class="input-wrapper"><input id="newuser-password" class="form-input" type="text" value="Temp@12345" required></div>
+              <div class="input-wrapper"><input id="newuser-password" class="form-input" type="password" minlength="12" autocomplete="new-password" placeholder="At least 12 characters" required></div>
             </div>
           </div>
           <div class="modal-footer" style="padding-left:0; padding-right:0; padding-bottom:0">
@@ -992,8 +996,8 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
           </div>
           <div>
-            <h2 class="modal-title">Setup Voucher Wi-Fi</h2>
-            <p class="modal-subtitle">Masukkan Nama Wi-Fi & Password untuk tamu</p>
+            <h2 class="modal-title">Wi-Fi Bulanan</h2>
+            <p class="modal-subtitle">Satu SSID dan password untuk seluruh meeting pada bulan yang dipilih</p>
           </div>
         </div>
         <button class="modal-close" onclick="closeModal('modal-wifi-setup')">
@@ -1003,24 +1007,27 @@
       <div class="modal-body">
         <form id="form-wifi-setup" onsubmit="handleSaveWifiSetup(event); return false;">
           <div class="form-group">
+            <label class="form-label" for="wifi-input-month">Bulan meeting <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <input id="wifi-input-month" class="form-input" type="month" required onchange="loadMonthlyWifiSettings()">
+            </div>
+          </div>
+          <p id="wifi-month-status" class="modal-subtitle" role="status" style="margin-bottom:1rem"></p>
+          <div class="form-group">
             <label class="form-label" for="wifi-input-ssid">Nama Wi-Fi (SSID) <span class="required">*</span></label>
             <div class="input-wrapper">
               <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
-              <input id="wifi-input-ssid" class="form-input" type="text" placeholder="Contoh: Office-Guest / Ruang-Meeting" required>
+              <input id="wifi-input-ssid" class="form-input" type="text" placeholder="Nama jaringan Wi-Fi yang sebenarnya" maxlength="32" required>
             </div>
           </div>
 
           <div class="form-group">
             <div class="form-label-row">
               <label class="form-label" for="wifi-input-password">Password Wi-Fi <span class="required">*</span></label>
-              <button type="button" class="text-link-btn" onclick="generateRandomWifiPassword()">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                Acak Password
-              </button>
             </div>
             <div class="input-wrapper">
               <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              <input id="wifi-input-password" class="form-input" type="text" placeholder="Masukkan password Wi-Fi" required>
+              <input id="wifi-input-password" class="form-input" type="password" placeholder="Password Wi-Fi bulan ini" minlength="8" maxlength="64" autocomplete="off" required>
               <button type="button" class="input-eye-btn" onclick="toggleWifiInputVisibility()" title="Toggle visibility">
                 <svg id="wifi-eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
@@ -1030,13 +1037,13 @@
           <div class="info-callout info-callout--cyan">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
             <div class="callout-text">
-              Voucher digital dengan <strong>QR Code Auto-Connect</strong> dan tombol <strong>Cetak (Print)</strong> akan otomatis dibuat saat reservasi dikonfirmasi.
+              Ubah password pada router terlebih dahulu, lalu simpan di sini. Pengaturan berlaku berdasarkan <strong>bulan tanggal meeting</strong>, termasuk booking yang sudah ada. Bulan berikutnya memiliki pengaturan sendiri.
             </div>
           </div>
 
           <div class="modal-footer" style="padding: 1rem 0 0 0">
             <button type="button" class="btn btn-ghost" onclick="closeModal('modal-wifi-setup')">Batal</button>
-            <button type="submit" class="btn btn-primary">
+            <button id="btn-save-monthly-wifi" type="submit" class="btn btn-primary">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
               Simpan & Terapkan
             </button>
@@ -1103,7 +1110,7 @@
               <div class="voucher-meta-row">
                 <div class="voucher-meta-item">
                   <span class="v-label">Ruangan</span>
-                  <span class="v-val" id="voucher-room">Main Conference Room</span>
+                  <span class="v-val" id="voucher-room">-</span>
                 </div>
                 <div class="voucher-meta-item">
                   <span class="v-label">Jadwal Sesi</span>
@@ -1125,7 +1132,7 @@
                 <div class="wifi-field-box">
                   <span class="wifi-field-label">NAMA WI-FI (SSID)</span>
                   <div class="wifi-field-val-row">
-                    <span class="wifi-field-val" id="voucher-ssid">RoomSync-Guest</span>
+                    <span class="wifi-field-val" id="voucher-ssid">-</span>
                     <button type="button" class="btn-copy-small no-print" onclick="copyWifiSsid()" title="Salin SSID">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                     </button>
@@ -1158,7 +1165,7 @@
           </div>
 
           <div class="voucher-card-footer">
-            <span>Kode: <strong id="voucher-code">VCH-2026-001</strong></span>
+            <span>Kode: <strong id="voucher-code">-</strong></span>
             <span>Ide Solusi Network System</span>
           </div>
         </div>

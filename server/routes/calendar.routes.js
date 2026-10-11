@@ -1,11 +1,11 @@
 const express = require('express');
 const bookingService = require('../services/bookingService');
-const { optionalAuth, authenticate } = require('../middleware/auth');
+const { authenticate } = require('../middleware/auth');
 
 const router = express.Router();
 
 // Get calendar events for date range
-router.get('/events', optionalAuth, async (req, res, next) => {
+router.get('/events', authenticate, async (req, res, next) => {
   try {
     const { startDate, endDate } = req.query;
     if (!startDate || !endDate) {

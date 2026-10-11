@@ -1,5 +1,25 @@
 const prisma = require('../db/prisma');
 const emailService = require('./emailService');
+const config = require('../config/env');
+const { attachMonthlyWifi } = require('./wifiService');
+
+// Shared schedule responses must never include Wi-Fi or account credentials.
+const scheduleSelect = {
+  id: true, userId: true, bookingDate: true, startTime: true, endTime: true,
+  topic: true, status: true,
+  user: { select: { id: true, fullName: true, company: true } },
+};
+
+async function deliverNotification(send) {
+  try {
+    const result = await send();
+    if (result?.simulated) return 'simulated';
+    return result?.success ? 'sent' : 'failed';
+  } catch {
+    console.error('[EMAIL ERROR] Reservation saved, notification delivery failed.');
+    return 'failed';
+  }
+}
 
 // Helper to check if two time ranges overlap
 // [s1, e1) and [s2, e2) overlap iff (s1 < e2) && (s2 < e1)
@@ -14,6 +34,11 @@ async function getPrimaryRoom() {
   });
 
   if (!room) {
+    if (config.NODE_ENV === 'production') {
+      const error = new Error('Meeting room is not configured. Contact the administrator.');
+      error.statusCode = 503;
+      throw error;
+    }
     room = await prisma.room.create({
       data: {
         name: 'Main Conference Room',
@@ -74,7 +99,7 @@ async function checkConflict(date, startTime, endTime, excludeBookingId = null) 
 /**
  * Create a new meeting room booking.
  */
-async function createBooking({ userId, date, startTime, endTime, topic, wifiSsid, wifiPassword }) {
+async function createBooking({ userId, date, startTime, endTime, topic }) {
   if (!date || !startTime || !endTime || !topic) {
     const error = new Error('All booking fields are required (date, start time, end time, topic).');
     error.statusCode = 400;
@@ -100,7 +125,7 @@ async function createBooking({ userId, date, startTime, endTime, topic, wifiSsid
   const room = await getPrimaryRoom();
 
   // Concurrency-safe atomic transaction
-  return await prisma.$transaction(async (tx) => {
+  const createdBooking = await prisma.$transaction(async (tx) => {
     // 1. Re-query existing bookings inside transaction
     const existingBookings = await tx.booking.findMany({
       where: {
@@ -151,8 +176,6 @@ async function createBooking({ userId, date, startTime, endTime, topic, wifiSsid
         topic: topic.trim(),
         status: 'CONFIRMED',
         rescheduleCount: 0,
-        wifiSsid: wifiSsid ? String(wifiSsid).trim() : null,
-        wifiPassword: wifiPassword ? String(wifiPassword).trim() : null,
       },
       include: {
         user: {
@@ -164,13 +187,12 @@ async function createBooking({ userId, date, startTime, endTime, topic, wifiSsid
       },
     });
 
-    // 3. Send confirmation email
-    emailService.sendBookingConfirmation({ booking, user }).catch((e) =>
-      console.error('Failed to dispatch confirmation email:', e)
-    );
-
     return booking;
   });
+  // Send only after commit; SMTP never holds the SQLite transaction open.
+  const emailDelivery = await deliverNotification(() => emailService.sendBookingConfirmation({ booking: createdBooking, user }));
+  const [bookingWithWifi] = await attachMonthlyWifi([createdBooking]);
+  return { ...bookingWithWifi, emailDelivery };
 }
 
 /**
@@ -233,7 +255,7 @@ async function rescheduleBooking({ bookingId, userId, userRole, newDate, newStar
   }
 
   // Atomic transaction to verify no conflicts and execute reschedule
-  return await prisma.$transaction(async (tx) => {
+  const updatedBooking = await prisma.$transaction(async (tx) => {
     // 1. Conflict checking on new slot
     const existingBookings = await tx.booking.findMany({
       where: {
@@ -311,17 +333,17 @@ async function rescheduleBooking({ bookingId, userId, userRole, newDate, newStar
       },
     });
 
-    // 4. Send email notification
-    emailService.sendRescheduleNotification({
-      booking: updatedBooking,
-      user: booking.user,
-      oldDate,
-      oldStartTime,
-      oldEndTime,
-    }).catch((e) => console.error('Failed to dispatch reschedule email:', e));
-
     return updatedBooking;
   });
+  const emailDelivery = await deliverNotification(() => emailService.sendRescheduleNotification({
+    booking: updatedBooking,
+    user: booking.user,
+    oldDate: booking.bookingDate,
+    oldStartTime: booking.startTime,
+    oldEndTime: booking.endTime,
+  }));
+  const [bookingWithWifi] = await attachMonthlyWifi([updatedBooking]);
+  return { ...bookingWithWifi, emailDelivery };
 }
 
 /**
@@ -353,13 +375,14 @@ async function cancelBooking({ bookingId, userId, userRole }) {
     },
   });
 
-  return updated;
+  const [bookingWithWifi] = await attachMonthlyWifi([updated]);
+  return bookingWithWifi;
 }
 
 /**
  * Get booking by ID.
  */
-async function getBookingById(id) {
+async function getBookingById(id, viewer) {
   const booking = await prisma.booking.findUnique({
     where: { id },
     include: {
@@ -379,7 +402,14 @@ async function getBookingById(id) {
     throw error;
   }
 
-  return booking;
+  if (!viewer || (viewer.role !== 'ADMIN' && viewer.role !== 'RECEPTIONIST' && booking.userId !== viewer.id)) {
+    const error = new Error('Access denied. You can only view details of your own bookings.');
+    error.statusCode = 403;
+    throw error;
+  }
+
+  const [bookingWithWifi] = await attachMonthlyWifi([booking]);
+  return bookingWithWifi;
 }
 
 /**
@@ -447,7 +477,7 @@ async function getBookings({
     page,
     limit,
     totalPages: Math.ceil(total / limit) || 1,
-    bookings,
+    bookings: await attachMonthlyWifi(bookings),
   };
 }
 
@@ -463,11 +493,7 @@ async function getCalendarEvents({ startDate, endDate }) {
       },
       status: { in: ['CONFIRMED', 'RESCHEDULED'] },
     },
-    include: {
-      user: {
-        select: { id: true, fullName: true, company: true, email: true },
-      },
-    },
+    select: scheduleSelect,
     orderBy: { startTime: 'asc' },
   });
 
@@ -493,9 +519,7 @@ async function getDashboardStats() {
       bookingDate: todayStr,
       status: { in: ['CONFIRMED', 'RESCHEDULED'] },
     },
-    include: {
-      user: { select: { fullName: true, company: true } },
-    },
+    select: scheduleSelect,
     orderBy: { startTime: 'asc' },
   });
 
@@ -547,40 +571,6 @@ async function getDashboardStats() {
   };
 }
 
-/**
- * Update Wi-Fi voucher credentials for a booking.
- */
-async function updateWifi(bookingId, { wifiSsid, wifiPassword }, user) {
-  const booking = await prisma.booking.findUnique({
-    where: { id: bookingId },
-  });
-
-  if (!booking) {
-    const error = new Error('Booking not found.');
-    error.statusCode = 404;
-    throw error;
-  }
-
-  // Permission check: owner or staff/admin
-  if (booking.userId !== user.id && !['ADMIN', 'RECEPTIONIST'].includes(user.role)) {
-    const error = new Error('You are not authorized to update Wi-Fi credentials for this booking.');
-    error.statusCode = 403;
-    throw error;
-  }
-
-  return await prisma.booking.update({
-    where: { id: bookingId },
-    data: {
-      wifiSsid: wifiSsid ? String(wifiSsid).trim() : null,
-      wifiPassword: wifiPassword ? String(wifiPassword).trim() : null,
-    },
-    include: {
-      user: { select: { id: true, fullName: true, company: true, email: true } },
-      room: { select: { id: true, name: true } },
-    },
-  });
-}
-
 module.exports = {
   checkConflict,
   createBooking,
@@ -591,5 +581,4 @@ module.exports = {
   getCalendarEvents,
   getDashboardStats,
   isOverlapping,
-  updateWifi,
 };

@@ -8,6 +8,9 @@ if (config.SMTP_HOST && config.SMTP_USER) {
     host: config.SMTP_HOST,
     port: config.SMTP_PORT,
     secure: config.SMTP_SECURE,
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
     auth: {
       user: config.SMTP_USER,
       pass: config.SMTP_PASS,
@@ -29,11 +32,12 @@ async function sendMail({ to, subject, html, text }) {
       return { success: true, messageId: info.messageId };
     } catch (err) {
       console.error('[EMAIL ERROR] Failed to send email via SMTP:', err.message);
-      // Fallback log
-      logEmailFallback({ to, subject, html });
+      if (config.NODE_ENV !== 'production') logEmailFallback({ to, subject, html });
+      if (config.NODE_ENV === 'production') throw new Error('Email delivery failed. Please try again later.');
       return { success: false, error: err.message };
     }
   } else {
+    if (config.NODE_ENV === 'production') throw new Error('Email delivery is not configured.');
     logEmailFallback({ to, subject, html });
     return { success: true, simulated: true };
   }
