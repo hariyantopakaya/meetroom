@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RoomSync — Meeting Room Reservation System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- ============================================ -->
+  <!-- SCREEN: LOGIN                                -->
+  <!-- ============================================ -->
+  <div id="screen-login" class="screen active">
+    <div class="auth-bg">
+      <div class="auth-orb auth-orb--1"></div>
+      <div class="auth-orb auth-orb--2"></div>
+      <div class="auth-orb auth-orb--3"></div>
+    </div>
+    <div class="auth-container">
+      <div class="auth-card glass-card animate-in">
+        <div class="auth-logo">
+          <div class="logo-icon">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+              <rect x="2" y="6" width="28" height="20" rx="4" stroke="url(#logo-grad)" stroke-width="2.5"/>
+              <path d="M10 6V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2" stroke="url(#logo-grad)" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="16" cy="16" r="4" stroke="url(#logo-grad)" stroke-width="2"/>
+              <path d="M16 12v4l2.5 2.5" stroke="url(#logo-grad)" stroke-width="2" stroke-linecap="round"/>
+              <defs>
+                <linearGradient id="logo-grad" x1="0" y1="0" x2="32" y2="32">
+                  <stop stop-color="#06b6d4"/>
+                  <stop offset="1" stop-color="#8b5cf6"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <span class="logo-text">Room<span class="logo-accent">Sync</span></span>
+        </div>
+        <h1 class="auth-title">Welcome back</h1>
+        <p class="auth-subtitle">Sign in to manage your meeting room reservations</p>
+        
+        <form class="auth-form" onsubmit="return false;">
+          <div class="form-group">
+            <label class="form-label" for="login-email">Email Address</label>
+            <div class="input-wrapper">
+              <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m2 7 10 7 10-7"/></svg>
+              <input id="login-email" class="form-input" type="email" placeholder="name@company.com" value="receptionist@company.com">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="login-password">Password</label>
+            <div class="input-wrapper">
+              <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><circle cx="12" cy="16" r="1"/></svg>
+              <input id="login-password" class="form-input" type="password" placeholder="••••••••" value="password123">
+            </div>
+          </div>
+          <div class="form-row">
+            <label class="checkbox-label"><input type="checkbox" checked> Remember me</label>
+            <a href="#" class="form-link" onclick="showScreen('screen-forgot')">Forgot password?</a>
+          </div>
+          <button class="btn btn-primary btn-full" onclick="showScreen('screen-dashboard')">
+            <span>Sign In</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </form>
+        
+        <div class="auth-divider"><span>or</span></div>
+        <p class="auth-footer">Don't have an account? <a href="#" class="form-link" onclick="showScreen('screen-register')">Create one</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SCREEN: REGISTER                             -->
+  <!-- ============================================ -->
+  <div id="screen-register" class="screen">
+    <div class="auth-bg">
+      <div class="auth-orb auth-orb--1"></div>
+      <div class="auth-orb auth-orb--2"></div>
+      <div class="auth-orb auth-orb--3"></div>
+    </div>
+    <div class="auth-container">
+      <div class="auth-card glass-card animate-in">
+        <div class="auth-logo">
+          <div class="logo-icon">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+              <rect x="2" y="6" width="28" height="20" rx="4" stroke="url(#logo-grad2)" stroke-width="2.5"/>
+              <path d="M10 6V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2" stroke="url(#logo-grad2)" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="16" cy="16" r="4" stroke="url(#logo-grad2)" stroke-width="2"/>
+              <path d="M16 12v4l2.5 2.5" stroke="url(#logo-grad2)" stroke-width="2" stroke-linecap="round"/>
+              <defs>
+                <linearGradient id="logo-grad2" x1="0" y1="0" x2="32" y2="32">
+                  <stop stop-color="#06b6d4"/>
+                  <stop offset="1" stop-color="#8b5cf6"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <span class="logo-text">Room<span class="logo-accent">Sync</span></span>
+        </div>
+        <h1 class="auth-title">Create account</h1>
+        <p class="auth-subtitle">Register to start booking meeting rooms</p>
+        
+        <form class="auth-form" onsubmit="return false;">
+          <div class="form-row-2col">
+            <div class="form-group">
+              <label class="form-label" for="reg-name">Full Name</label>
+              <div class="input-wrapper">
+                <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>
+                <input id="reg-name" class="form-input" type="text" placeholder="John Doe">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="reg-company">Company</label>
+              <div class="input-wrapper">
+                <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
+                <input id="reg-company" class="form-input" type="text" placeholder="PT Solusi Digital">
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-email">Email Address</label>
+            <div class="input-wrapper">
+              <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m2 7 10 7 10-7"/></svg>
+              <input id="reg-email" class="form-input" type="email" placeholder="name@company.com">
+            </div>
+          </div>
+          <div class="form-row-2col">
+            <div class="form-group">
+              <label class="form-label" for="reg-pass">Password</label>
+              <div class="input-wrapper">
+                <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><circle cx="12" cy="16" r="1"/></svg>
+                <input id="reg-pass" class="form-input" type="password" placeholder="Min. 8 characters">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="reg-confirm">Confirm Password</label>
+              <div class="input-wrapper">
+                <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><circle cx="12" cy="16" r="1"/></svg>
+                <input id="reg-confirm" class="form-input" type="password" placeholder="••••••••">
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-full" onclick="showScreen('screen-login')">
+            <span>Create Account</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </form>
+        <p class="auth-footer">Already have an account? <a href="#" class="form-link" onclick="showScreen('screen-login')">Sign in</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SCREEN: FORGOT PASSWORD                      -->
+  <!-- ============================================ -->
+  <div id="screen-forgot" class="screen">
+    <div class="auth-bg">
+      <div class="auth-orb auth-orb--1"></div>
+      <div class="auth-orb auth-orb--2"></div>
+      <div class="auth-orb auth-orb--3"></div>
+    </div>
+    <div class="auth-container">
+      <div class="auth-card glass-card animate-in">
+        <div class="auth-logo">
+          <div class="logo-icon">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+              <rect x="2" y="6" width="28" height="20" rx="4" stroke="url(#logo-grad3)" stroke-width="2.5"/>
+              <path d="M10 6V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2" stroke="url(#logo-grad3)" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="16" cy="16" r="4" stroke="url(#logo-grad3)" stroke-width="2"/>
+              <path d="M16 12v4l2.5 2.5" stroke="url(#logo-grad3)" stroke-width="2" stroke-linecap="round"/>
+              <defs>
+                <linearGradient id="logo-grad3" x1="0" y1="0" x2="32" y2="32">
+                  <stop stop-color="#06b6d4"/>
+                  <stop offset="1" stop-color="#8b5cf6"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <span class="logo-text">Room<span class="logo-accent">Sync</span></span>
+        </div>
+        <h1 class="auth-title">Reset password</h1>
+        <p class="auth-subtitle">Enter your email and we'll send a reset link, or contact your administrator</p>
+
+        <form class="auth-form" onsubmit="return false;">
+          <div class="form-group">
+            <label class="form-label" for="forgot-email">Email Address</label>
+            <div class="input-wrapper">
+              <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m2 7 10 7 10-7"/></svg>
+              <input id="forgot-email" class="form-input" type="email" placeholder="name@company.com">
+            </div>
+          </div>
+          <button class="btn btn-primary btn-full" onclick="showToast('Reset link sent to your email','success')">
+            <span>Send Reset Link</span>
+          </button>
+        </form>
+        <p class="auth-footer"><a href="#" class="form-link" onclick="showScreen('screen-login')">← Back to Sign In</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SCREEN: DASHBOARD (with Sidebar)             -->
+  <!-- ============================================ -->
+  <div id="screen-dashboard" class="screen">
+    <div class="app-layout">
+      <!-- Sidebar -->
+      <aside class="sidebar glass-sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <div class="logo-icon logo-icon--sm">
+            <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
+              <rect x="2" y="6" width="28" height="20" rx="4" stroke="url(#logo-grad-s)" stroke-width="2.5"/>
+              <path d="M10 6V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2" stroke="url(#logo-grad-s)" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="16" cy="16" r="4" stroke="url(#logo-grad-s)" stroke-width="2"/>
+              <path d="M16 12v4l2.5 2.5" stroke="url(#logo-grad-s)" stroke-width="2" stroke-linecap="round"/>
+              <defs><linearGradient id="logo-grad-s" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#06b6d4"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
+            </svg>
+          </div>
+          <span class="logo-text logo-text--sm">Room<span class="logo-accent">Sync</span></span>
+        </div>
+
+        <nav class="sidebar-nav">
+          <div class="nav-section-label">Main</div>
+          <a class="nav-item active" onclick="showDashboardSection('dashboard')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            <span>Dashboard</span>
+          </a>
+          <a class="nav-item" onclick="showDashboardSection('calendar')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
+            <span>Calendar</span>
+          </a>
+          <a class="nav-item" onclick="showDashboardSection('bookings')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>
+            <span>Bookings</span>
+          </a>
+          
+          <div class="nav-section-label">Management</div>
+          <a class="nav-item" onclick="showDashboardSection('users')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>Users</span>
+          </a>
+          <a class="nav-item" onclick="showDashboardSection('reports')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+            <span>Reports</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="sidebar-user">
+            <div class="avatar avatar--sm">SA</div>
+            <div class="sidebar-user-info">
+              <span class="sidebar-user-name">Sarah Admin</span>
+              <span class="sidebar-user-role">Administrator</span>
+            </div>
+          </div>
+          <a class="nav-item nav-item--logout" onclick="showScreen('screen-login')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            <span>Sign Out</span>
+          </a>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Top Bar -->
+        <header class="topbar glass-topbar">
+          <button class="topbar-menu-btn" onclick="toggleSidebar()">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <div class="topbar-title" id="topbar-title">Dashboard</div>
+          <div class="topbar-actions">
+            <button class="btn btn-primary btn-sm" onclick="showModal('modal-new-booking')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>New Booking</span>
+            </button>
+            <div class="avatar">SA</div>
+          </div>
+        </header>
+
+        <!-- SECTION: Dashboard Overview -->
+        <div class="content-area" id="section-dashboard">
+          <div class="content-header animate-in">
+            <div>
+              <h2 class="content-title">Good afternoon, Sarah 👋</h2>
+              <p class="content-subtitle">Here's what's happening with your meeting room today</p>
+            </div>
+            <div class="content-header-actions">
+              <span class="date-badge">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                Friday, 29 Aug 2026
+              </span>
+            </div>
+          </div>
+
+          <!-- Stats Cards -->
+          <div class="stats-grid animate-in" style="animation-delay:.1s">
+            <div class="stat-card glass-card">
+              <div class="stat-icon stat-icon--cyan">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              </div>
+              <div class="stat-info">
+                <span class="stat-value">12</span>
+                <span class="stat-label">Today's Bookings</span>
+              </div>
+              <span class="stat-trend stat-trend--up">+18%</span>
+            </div>
+            <div class="stat-card glass-card">
+              <div class="stat-icon stat-icon--violet">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+              <div class="stat-info">
+                <span class="stat-value">47</span>
+                <span class="stat-label">Total Users</span>
+              </div>
+              <span class="stat-trend stat-trend--up">+5</span>
+            </div>
+            <div class="stat-card glass-card">
+              <div class="stat-icon stat-icon--amber">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>
+              </div>
+              <div class="stat-info">
+                <span class="stat-value">6.2h</span>
+                <span class="stat-label">Avg. Daily Usage</span>
+              </div>
+              <span class="stat-trend stat-trend--neutral">→ 0%</span>
+            </div>
+            <div class="stat-card glass-card">
+              <div class="stat-icon stat-icon--emerald">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              </div>
+              <div class="stat-info">
+                <span class="stat-value">89%</span>
+                <span class="stat-label">Occupancy Rate</span>
+              </div>
+              <span class="stat-trend stat-trend--up">+3%</span>
+            </div>
+          </div>
+
+          <!-- Today's Schedule -->
+          <div class="section-row animate-in" style="animation-delay:.2s">
+            <div class="panel glass-card panel--wide">
+              <div class="panel-header">
+                <h3 class="panel-title">Today's Schedule</h3>
+                <a class="panel-link" onclick="showDashboardSection('calendar')">View Calendar →</a>
+              </div>
+              <div class="timeline">
+                <div class="timeline-item">
+                  <div class="timeline-time">08:00 – 09:30</div>
+                  <div class="timeline-bar timeline-bar--active"></div>
+                  <div class="timeline-content">
+                    <span class="timeline-topic">Sprint Planning — Q3 Features</span>
+                    <span class="timeline-meta">Budi Santoso • PT Teknologi Maju</span>
+                  </div>
+                  <span class="badge badge--confirmed">Confirmed</span>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-time">10:00 – 11:00</div>
+                  <div class="timeline-bar timeline-bar--upcoming"></div>
+                  <div class="timeline-content">
+                    <span class="timeline-topic">Client Presentation — Project Alpha</span>
+                    <span class="timeline-meta">Diana Putri • PT Solusi Digital</span>
+                  </div>
+                  <span class="badge badge--confirmed">Confirmed</span>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-time">13:00 – 14:30</div>
+                  <div class="timeline-bar timeline-bar--upcoming"></div>
+                  <div class="timeline-content">
+                    <span class="timeline-topic">Design Review — Mobile App Revamp</span>
+                    <span class="timeline-meta">Rina Wijaya • CV Kreatif Nusantara</span>
+                  </div>
+                  <span class="badge badge--rescheduled">Rescheduled</span>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-time">15:00 – 16:00</div>
+                  <div class="timeline-bar timeline-bar--upcoming"></div>
+                  <div class="timeline-content">
+                    <span class="timeline-topic">Vendor Negotiation — IT Infrastructure</span>
+                    <span class="timeline-meta">Ahmad Fauzi • PT Infrastruktur Prima</span>
+                  </div>
+                  <span class="badge badge--confirmed">Confirmed</span>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-time">16:30 – 17:30</div>
+                  <div class="timeline-bar timeline-bar--upcoming"></div>
+                  <div class="timeline-content">
+                    <span class="timeline-topic">Monthly Retrospective</span>
+                    <span class="timeline-meta">Sarah Admin • Internal</span>
+                  </div>
+                  <span class="badge badge--confirmed">Confirmed</span>
+                </div>
+              </div>
+            </div>
+            <div class="panel glass-card panel--narrow">
+              <div class="panel-header">
+                <h3 class="panel-title">Quick Stats</h3>
+              </div>
+              <div class="quick-stats">
+                <div class="quick-stat">
+                  <div class="quick-stat-ring" style="--progress: 75; --ring-color: #06b6d4;">
+                    <svg viewBox="0 0 36 36"><path class="ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/><path class="ring-fill" stroke-dasharray="75, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/></svg>
+                    <span class="ring-label">75%</span>
+                  </div>
+                  <span class="quick-stat-text">Time Used Today</span>
+                </div>
+                <div class="mini-stat-list">
+                  <div class="mini-stat">
+                    <span class="mini-stat-dot" style="background:#06b6d4"></span>
+                    <span class="mini-stat-label">This week</span>
+                    <span class="mini-stat-value">34 bookings</span>
+                  </div>
+                  <div class="mini-stat">
+                    <span class="mini-stat-dot" style="background:#8b5cf6"></span>
+                    <span class="mini-stat-label">This month</span>
+                    <span class="mini-stat-value">128 bookings</span>
+                  </div>
+                  <div class="mini-stat">
+                    <span class="mini-stat-dot" style="background:#f59e0b"></span>
+                    <span class="mini-stat-label">Rescheduled</span>
+                    <span class="mini-stat-value">8 bookings</span>
+                  </div>
+                  <div class="mini-stat">
+                    <span class="mini-stat-dot" style="background:#ef4444"></span>
+                    <span class="mini-stat-label">Cancelled</span>
+                    <span class="mini-stat-value">3 bookings</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION: Calendar View -->
+        <div class="content-area hidden" id="section-calendar">
+          <div class="content-header animate-in">
+            <div>
+              <h2 class="content-title">Calendar</h2>
+              <p class="content-subtitle">Weekly overview of all meeting room reservations</p>
+            </div>
+            <div class="content-header-actions">
+              <button class="btn btn-ghost btn-sm btn-fullscreen" onclick="toggleFullScreenCalendar()" title="Fullscreen">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+              </button>
+              <div class="view-toggle">
+                <button class="view-btn active">Week</button>
+                <button class="view-btn">Day</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="calendar-wrapper glass-card animate-in" style="animation-delay:.1s">
+            <div class="calendar-nav">
+              <button class="cal-nav-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <h3 class="cal-nav-title">25 – 31 August 2026</h3>
+              <button class="cal-nav-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button class="btn btn-ghost btn-sm" style="margin-left:auto">Today</button>
+            </div>
+
+            <div class="calendar-grid">
+              <!-- Time Column -->
+              <div class="cal-time-col">
+                <div class="cal-header-cell cal-header-cell--corner"></div>
+                <div class="cal-time-slot">08:00</div>
+                <div class="cal-time-slot">09:00</div>
+                <div class="cal-time-slot">10:00</div>
+                <div class="cal-time-slot">11:00</div>
+                <div class="cal-time-slot">12:00</div>
+                <div class="cal-time-slot">13:00</div>
+                <div class="cal-time-slot">14:00</div>
+                <div class="cal-time-slot">15:00</div>
+                <div class="cal-time-slot">16:00</div>
+                <div class="cal-time-slot">17:00</div>
+              </div>
+
+              <!-- Monday -->
+              <div class="cal-day-col">
+                <div class="cal-header-cell">
+                  <span class="cal-day-name">Mon</span>
+                  <span class="cal-day-num">25</span>
+                </div>
+                <div class="cal-day-body">
+                  <div class="cal-event cal-event--cyan" style="top: 0; height: calc(1.5 * var(--slot-h));" onclick="showModal('modal-booking-detail')">
+                    <span class="cal-event-time">08:00–09:30</span>
+                    <span class="cal-event-title">Sprint Planning</span>
+                    <span class="cal-event-meta">Budi S.</span>
+                  </div>
+                  <div class="cal-event cal-event--violet" style="top: calc(3 * var(--slot-h)); height: calc(2 * var(--slot-h));">
+                    <span class="cal-event-time">11:00–13:00</span>
+                    <span class="cal-event-title">Workshop UX</span>
+                    <span class="cal-event-meta">Rina W.</span>
+                  </div>
+                  <div class="cal-event cal-event--amber" style="top: calc(7 * var(--slot-h)); height: var(--slot-h);">
+                    <span class="cal-event-time">15:00–16:00</span>
+                    <span class="cal-event-title">1-on-1 Review</span>
+                    <span class="cal-event-meta">Ahmad F.</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tuesday -->
+              <div class="cal-day-col">
+                <div class="cal-header-cell">
+                  <span class="cal-day-name">Tue</span>
+                  <span class="cal-day-num">26</span>
+                </div>
+                <div class="cal-day-body">
+                  <div class="cal-event cal-event--emerald" style="top: calc(1 * var(--slot-h)); height: calc(1.5 * var(--slot-h));">
+                    <span class="cal-event-time">09:00–10:30</span>
+                    <span class="cal-event-title">Client Demo</span>
+                    <span class="cal-event-meta">Diana P.</span>
+                  </div>
+                  <div class="cal-event cal-event--rose" style="top: calc(5 * var(--slot-h)); height: calc(1.5 * var(--slot-h));">
+                    <span class="cal-event-time">13:00–14:30</span>
+                    <span class="cal-event-title">Board Meeting</span>
+                    <span class="cal-event-meta">Sarah A.</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Wednesday -->
+              <div class="cal-day-col">
+                <div class="cal-header-cell">
+                  <span class="cal-day-name">Wed</span>
+                  <span class="cal-day-num">27</span>
+                </div>
+                <div class="cal-day-body">
+                  <div class="cal-event cal-event--cyan" style="top: 0; height: calc(2 * var(--slot-h));">
+                    <span class="cal-event-time">08:00–10:00</span>
+                    <span class="cal-event-title">Tech Review</span>
+                    <span class="cal-event-meta">Budi S.</span>
+                  </div>
+                  <div class="cal-event cal-event--violet" style="top: calc(4 * var(--slot-h)); height: var(--slot-h);">
+                    <span class="cal-event-time">12:00–13:00</span>
+                    <span class="cal-event-title">Lunch & Learn</span>
+                    <span class="cal-event-meta">Internal</span>
+                  </div>
+                  <div class="cal-event cal-event--amber" style="top: calc(6 * var(--slot-h)); height: calc(2 * var(--slot-h));">
+                    <span class="cal-event-time">14:00–16:00</span>
+                    <span class="cal-event-title">Project Alpha Sync</span>
+                    <span class="cal-event-meta">Diana P.</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Thursday -->
+              <div class="cal-day-col">
+                <div class="cal-header-cell">
+                  <span class="cal-day-name">Thu</span>
+                  <span class="cal-day-num">28</span>
+                </div>
+                <div class="cal-day-body">
+                  <div class="cal-event cal-event--emerald" style="top: calc(1 * var(--slot-h)); height: var(--slot-h);">
+                    <span class="cal-event-time">09:00–10:00</span>
+                    <span class="cal-event-title">Vendor Call</span>
+                    <span class="cal-event-meta">Ahmad F.</span>
+                  </div>
+                  <div class="cal-event cal-event--rose" style="top: calc(3 * var(--slot-h)); height: calc(1.5 * var(--slot-h));">
+                    <span class="cal-event-time">11:00–12:30</span>
+                    <span class="cal-event-title">Design Critique</span>
+                    <span class="cal-event-meta">Rina W.</span>
+                  </div>
+                  <div class="cal-event cal-event--cyan" style="top: calc(7 * var(--slot-h)); height: calc(1.5 * var(--slot-h));">
+                    <span class="cal-event-time">15:00–16:30</span>
+                    <span class="cal-event-title">Quarterly Review</span>
+                    <span class="cal-event-meta">Sarah A.</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Friday (today) -->
+              <div class="cal-day-col cal-day-col--today">
+                <div class="cal-header-cell cal-header-cell--today">
+                  <span class="cal-day-name">Fri</span>
+                  <span class="cal-day-num cal-day-num--today">29</span>
+                </div>
+                <div class="cal-day-body">
+                  <div class="cal-event cal-event--cyan cal-event--active" style="top: 0; height: calc(1.5 * var(--slot-h));" onclick="showModal('modal-booking-detail')">
+                    <span class="cal-event-time">08:00–09:30</span>
+                    <span class="cal-event-title">Sprint Planning</span>
+                    <span class="cal-event-meta">Budi S.</span>
+                  </div>
+                  <div class="cal-event cal-event--violet" style="top: calc(2 * var(--slot-h)); height: var(--slot-h);">
+                    <span class="cal-event-time">10:00–11:00</span>
+                    <span class="cal-event-title">Client Presentation</span>
+                    <span class="cal-event-meta">Diana P.</span>
+                  </div>
+                  <div class="cal-event cal-event--amber cal-event--rescheduled" style="top: calc(5 * var(--slot-h)); height: calc(1.5 * var(--slot-h));">
+                    <span class="cal-event-time">13:00–14:30</span>
+                    <span class="cal-event-title">Design Review</span>
+                    <span class="cal-event-meta">Rina W. ↻</span>
+                  </div>
+                  <div class="cal-event cal-event--emerald" style="top: calc(7 * var(--slot-h)); height: var(--slot-h);">
+                    <span class="cal-event-time">15:00–16:00</span>
+                    <span class="cal-event-title">Vendor Negotiation</span>
+                    <span class="cal-event-meta">Ahmad F.</span>
+                  </div>
+                  <div class="cal-event cal-event--rose" style="top: calc(8.5 * var(--slot-h)); height: var(--slot-h);">
+                    <span class="cal-event-time">16:30–17:30</span>
+                    <span class="cal-event-title">Retrospective</span>
+                    <span class="cal-event-meta">Sarah A.</span>
+                  </div>
+                  <!-- Current time indicator -->
+                  <div class="cal-now-line" style="top: calc(5.7 * var(--slot-h));">
+                    <span class="cal-now-dot"></span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Saturday -->
+              <div class="cal-day-col cal-day-col--weekend">
+                <div class="cal-header-cell">
+                  <span class="cal-day-name">Sat</span>
+                  <span class="cal-day-num">30</span>
+                </div>
+                <div class="cal-day-body"></div>
+              </div>
+
+              <!-- Sunday -->
+              <div class="cal-day-col cal-day-col--weekend">
+                <div class="cal-header-cell">
+                  <span class="cal-day-name">Sun</span>
+                  <span class="cal-day-num">31</span>
+                </div>
+                <div class="cal-day-body"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION: Bookings List -->
+        <div class="content-area hidden" id="section-bookings">
+          <div class="content-header animate-in">
+            <div>
+              <h2 class="content-title">Bookings</h2>
+              <p class="content-subtitle">Manage all meeting room reservations</p>
+            </div>
+            <div class="content-header-actions">
+              <div class="export-group">
+                <button class="btn btn-ghost btn-sm" onclick="showToast('Downloading Excel report...','success')">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Excel
+                </button>
+                <button class="btn btn-ghost btn-sm" onclick="showToast('Generating PDF report...','success')">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg>
+                  PDF
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filter Bar -->
+          <div class="filter-bar glass-card animate-in" style="animation-delay:.1s">
+            <div class="filter-item">
+              <input class="form-input form-input--sm" type="text" placeholder="Search by name, company, or topic...">
+            </div>
+            <div class="filter-item">
+              <select class="form-select form-select--sm">
+                <option>All Status</option>
+                <option>Confirmed</option>
+                <option>Rescheduled</option>
+                <option>Cancelled</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <input class="form-input form-input--sm" type="date" value="2026-08-01">
+            </div>
+            <div class="filter-item">
+              <input class="form-input form-input--sm" type="date" value="2026-08-31">
+            </div>
+          </div>
+
+          <!-- Data Table -->
+          <div class="table-wrapper glass-card animate-in" style="animation-delay:.15s">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Client</th>
+                  <th>Company</th>
+                  <th>Topic</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>29 Aug 2026</td>
+                  <td><span class="time-range">08:00 – 09:30</span></td>
+                  <td><div class="client-cell"><div class="avatar avatar--xs">BS</div> Budi Santoso</div></td>
+                  <td>PT Teknologi Maju</td>
+                  <td>Sprint Planning — Q3 Features</td>
+                  <td><span class="badge badge--confirmed">Confirmed</span></td>
+                  <td>
+                    <div class="action-btns">
+                      <button class="icon-btn" title="View" onclick="showModal('modal-booking-detail')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                      <button class="icon-btn" title="Reschedule"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg></button>
+                      <button class="icon-btn icon-btn--danger" title="Cancel"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>29 Aug 2026</td>
+                  <td><span class="time-range">10:00 – 11:00</span></td>
+                  <td><div class="client-cell"><div class="avatar avatar--xs">DP</div> Diana Putri</div></td>
+                  <td>PT Solusi Digital</td>
+                  <td>Client Presentation — Project Alpha</td>
+                  <td><span class="badge badge--confirmed">Confirmed</span></td>
+                  <td>
+                    <div class="action-btns">
+                      <button class="icon-btn" title="View"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                      <button class="icon-btn" title="Reschedule"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg></button>
+                      <button class="icon-btn icon-btn--danger" title="Cancel"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>29 Aug 2026</td>
+                  <td><span class="time-range">13:00 – 14:30</span></td>
+                  <td><div class="client-cell"><div class="avatar avatar--xs">RW</div> Rina Wijaya</div></td>
+                  <td>CV Kreatif Nusantara</td>
+                  <td>Design Review — Mobile App Revamp</td>
+                  <td><span class="badge badge--rescheduled">Rescheduled</span></td>
+                  <td>
+                    <div class="action-btns">
+                      <button class="icon-btn" title="View"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                      <button class="icon-btn" title="Reschedule"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg></button>
+                      <button class="icon-btn icon-btn--danger" title="Cancel"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>29 Aug 2026</td>
+                  <td><span class="time-range">15:00 – 16:00</span></td>
+                  <td><div class="client-cell"><div class="avatar avatar--xs">AF</div> Ahmad Fauzi</div></td>
+                  <td>PT Infrastruktur Prima</td>
+                  <td>Vendor Negotiation — IT Infrastructure</td>
+                  <td><span class="badge badge--confirmed">Confirmed</span></td>
+                  <td>
+                    <div class="action-btns">
+                      <button class="icon-btn" title="View"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                      <button class="icon-btn" title="Reschedule"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg></button>
+                      <button class="icon-btn icon-btn--danger" title="Cancel"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>28 Aug 2026</td>
+                  <td><span class="time-range">09:00 – 10:00</span></td>
+                  <td><div class="client-cell"><div class="avatar avatar--xs">LH</div> Lisa Handayani</div></td>
+                  <td>PT Data Nusantara</td>
+                  <td>Data Migration Planning</td>
+                  <td><span class="badge badge--cancelled">Cancelled</span></td>
+                  <td>
+                    <div class="action-btns">
+                      <button class="icon-btn" title="View"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="table-footer">
+              <span class="table-info">Showing 1–5 of 128 bookings</span>
+              <div class="pagination">
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <span class="page-dots">…</span>
+                <button class="page-btn">26</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION: User Management -->
+        <div class="content-area hidden" id="section-users">
+          <div class="content-header animate-in">
+            <div>
+              <h2 class="content-title">User Management</h2>
+              <p class="content-subtitle">Manage users, roles, and access permissions</p>
+            </div>
+            <div class="content-header-actions">
+              <div class="export-group">
+                <button class="btn btn-ghost btn-sm" onclick="showToast('Downloading user list as Excel...','success')">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Excel
+                </button>
+                <button class="btn btn-ghost btn-sm" onclick="showToast('Generating PDF user report...','success')">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg>
+                  PDF
+                </button>
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="showModal('modal-new-user')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add User
+              </button>
+            </div>
+          </div>
+
+          <div class="table-wrapper glass-card animate-in" style="animation-delay:.1s">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Email</th>
+                  <th>Company</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Joined</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><div class="client-cell"><div class="avatar avatar--xs avatar--admin">SA</div> Sarah Admin</div></td>
+                  <td>sarah@admin.local</td>
+                  <td>Internal</td>
+                  <td><span class="role-badge role-badge--admin">Admin</span></td>
+                  <td><span class="status-dot status-dot--active"></span> Active</td>
+                  <td>01 Jan 2026</td>
+                  <td><div class="action-btns"><button class="icon-btn" title="Edit"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></div></td>
+                </tr>
+                <tr>
+                  <td><div class="client-cell"><div class="avatar avatar--xs avatar--recep">MR</div> Maya Receptionist</div></td>
+                  <td>maya@company.com</td>
+                  <td>Internal</td>
+                  <td><span class="role-badge role-badge--receptionist">Receptionist</span></td>
+                  <td><span class="status-dot status-dot--active"></span> Active</td>
+                  <td>15 Feb 2026</td>
+                  <td><div class="action-btns"><button class="icon-btn" title="Edit"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="icon-btn icon-btn--danger" title="Deactivate"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></button></div></td>
+                </tr>
+                <tr>
+                  <td><div class="client-cell"><div class="avatar avatar--xs">BS</div> Budi Santoso</div></td>
+                  <td>budi@teknologimaju.com</td>
+                  <td>PT Teknologi Maju</td>
+                  <td><span class="role-badge role-badge--user">User</span></td>
+                  <td><span class="status-dot status-dot--active"></span> Active</td>
+                  <td>20 Mar 2026</td>
+                  <td><div class="action-btns"><button class="icon-btn" title="Edit"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="icon-btn" title="Reset Password"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg></button><button class="icon-btn icon-btn--danger" title="Deactivate"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></button></div></td>
+                </tr>
+                <tr>
+                  <td><div class="client-cell"><div class="avatar avatar--xs">DP</div> Diana Putri</div></td>
+                  <td>diana@solusidigital.com</td>
+                  <td>PT Solusi Digital</td>
+                  <td><span class="role-badge role-badge--user">User</span></td>
+                  <td><span class="status-dot status-dot--active"></span> Active</td>
+                  <td>05 Apr 2026</td>
+                  <td><div class="action-btns"><button class="icon-btn" title="Edit"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="icon-btn" title="Reset Password"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg></button><button class="icon-btn icon-btn--danger" title="Deactivate"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></button></div></td>
+                </tr>
+                <tr>
+                  <td><div class="client-cell"><div class="avatar avatar--xs">RW</div> Rina Wijaya</div></td>
+                  <td>rina@kreativenusantara.com</td>
+                  <td>CV Kreatif Nusantara</td>
+                  <td><span class="role-badge role-badge--user">User</span></td>
+                  <td><span class="status-dot status-dot--inactive"></span> Inactive</td>
+                  <td>12 May 2026</td>
+                  <td><div class="action-btns"><button class="icon-btn" title="Edit"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="icon-btn" title="Activate"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></button></div></td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="table-footer">
+              <span class="table-info">Showing 1–5 of 47 users</span>
+              <div class="pagination">
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <span class="page-dots">…</span>
+                <button class="page-btn">10</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION: Reports -->
+        <div class="content-area hidden" id="section-reports">
+          <div class="content-header animate-in">
+            <div>
+              <h2 class="content-title">Reports</h2>
+              <p class="content-subtitle">Generate and export monthly room usage reports</p>
+            </div>
+          </div>
+
+          <div class="reports-grid animate-in" style="animation-delay:.1s">
+            <div class="report-card glass-card">
+              <div class="report-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
+              </div>
+              <h3 class="report-title">Monthly Booking Report</h3>
+              <p class="report-desc">Complete list of all bookings for a selected month with client details, time slots, and status.</p>
+              <div class="report-config">
+                <select class="form-select form-select--sm">
+                  <option>August 2026</option>
+                  <option>July 2026</option>
+                  <option>June 2026</option>
+                </select>
+              </div>
+              <div class="report-actions">
+                <button class="btn btn-primary btn-sm" onclick="showToast('Generating Excel report for August 2026...','success')">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Export Excel
+                </button>
+                <button class="btn btn-ghost btn-sm" onclick="showToast('Generating PDF report for August 2026...','success')">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg>
+                  Export PDF
+                </button>
+              </div>
+            </div>
+
+            <div class="report-card glass-card">
+              <div class="report-icon report-icon--violet">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+              <h3 class="report-title">User Activity Report</h3>
+              <p class="report-desc">Summary of user registrations, booking frequency, and active/inactive status.</p>
+              <div class="report-config">
+                <select class="form-select form-select--sm">
+                  <option>August 2026</option>
+                  <option>July 2026</option>
+                  <option>June 2026</option>
+                </select>
+              </div>
+              <div class="report-actions">
+                <button class="btn btn-primary btn-sm" onclick="showToast('Generating user activity Excel...','success')">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Export Excel
+                </button>
+                <button class="btn btn-ghost btn-sm" onclick="showToast('Generating user activity PDF...','success')">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg>
+                  Export PDF
+                </button>
+              </div>
+            </div>
+
+            <div class="report-card glass-card">
+              <div class="report-icon report-icon--amber">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+              </div>
+              <h3 class="report-title">Occupancy Analytics</h3>
+              <p class="report-desc">Room utilization rates, peak hours analysis, and usage trends across months.</p>
+              <div class="report-config">
+                <select class="form-select form-select--sm">
+                  <option>Q3 2026</option>
+                  <option>Q2 2026</option>
+                  <option>Q1 2026</option>
+                </select>
+              </div>
+              <div class="report-actions">
+                <button class="btn btn-primary btn-sm" onclick="showToast('Generating occupancy Excel...','success')">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Export Excel
+                </button>
+                <button class="btn btn-ghost btn-sm" onclick="showToast('Generating occupancy PDF...','success')">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg>
+                  Export PDF
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- MODAL: New Booking                           -->
+  <!-- ============================================ -->
+  <div class="modal-overlay" id="modal-new-booking" onclick="closeModalOnOverlay(event)">
+    <div class="modal glass-card animate-in">
+      <div class="modal-header">
+        <h2 class="modal-title">New Reservation</h2>
+        <button class="modal-close" onclick="closeModal('modal-new-booking')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form class="booking-form" onsubmit="return false;">
+          <div class="form-row-2col">
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <div class="input-wrapper">
+                <input class="form-input" type="text" value="Budi Santoso" readonly style="opacity:.6">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Company</label>
+              <div class="input-wrapper">
+                <input class="form-input" type="text" value="PT Teknologi Maju" readonly style="opacity:.6">
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Meeting Topic / Purpose</label>
+            <div class="input-wrapper">
+              <input class="form-input" type="text" placeholder="e.g. Sprint Planning — Q3 Features">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Date</label>
+            <div class="input-wrapper">
+              <input class="form-input" type="date" value="2026-09-01">
+            </div>
+          </div>
+          <div class="form-row-2col">
+            <div class="form-group">
+              <label class="form-label">Start Time</label>
+              <div class="input-wrapper">
+                <input class="form-input" type="time" value="10:00">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">End Time</label>
+              <div class="input-wrapper">
+                <input class="form-input" type="time" value="11:30">
+              </div>
+            </div>
+          </div>
+          <div class="availability-check">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <span style="color:#10b981">Time slot is available</span>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('modal-new-booking')">Cancel</button>
+        <button class="btn btn-primary" onclick="closeModal('modal-new-booking');showToast('Booking created successfully!','success')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Confirm Booking
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- MODAL: Booking Detail                        -->
+  <!-- ============================================ -->
+  <div class="modal-overlay" id="modal-booking-detail" onclick="closeModalOnOverlay(event)">
+    <div class="modal glass-card animate-in">
+      <div class="modal-header">
+        <h2 class="modal-title">Booking Details</h2>
+        <button class="modal-close" onclick="closeModal('modal-booking-detail')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Client</span>
+            <span class="detail-value">
+              <div class="client-cell"><div class="avatar avatar--xs">BS</div> Budi Santoso</div>
+            </span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Company</span>
+            <span class="detail-value">PT Teknologi Maju</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Date</span>
+            <span class="detail-value">Friday, 29 August 2026</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Time</span>
+            <span class="detail-value"><span class="time-range">08:00 – 09:30</span> (1h 30m)</span>
+          </div>
+          <div class="detail-item detail-item--full">
+            <span class="detail-label">Topic</span>
+            <span class="detail-value">Sprint Planning — Q3 Features</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Status</span>
+            <span class="detail-value"><span class="badge badge--confirmed">Confirmed</span></span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Booked On</span>
+            <span class="detail-value">25 Aug 2026, 14:30</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('modal-booking-detail')">Close</button>
+        <button class="btn btn-ghost" onclick="closeModal('modal-booking-detail');showToast('Opening reschedule form...','info')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+          Reschedule
+        </button>
+        <button class="btn btn-danger" onclick="closeModal('modal-booking-detail');showToast('Booking cancelled','warning')">Cancel Booking</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- MODAL: Conflict Alert                        -->
+  <!-- ============================================ -->
+  <div class="modal-overlay" id="modal-conflict" onclick="closeModalOnOverlay(event)">
+    <div class="modal modal--sm glass-card animate-in">
+      <div class="modal-header modal-header--conflict">
+        <div class="conflict-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <h2 class="modal-title" style="color:#f59e0b">Schedule Conflict</h2>
+      </div>
+      <div class="modal-body" style="text-align:center">
+        <p style="color:var(--text-secondary);line-height:1.7;margin-bottom:1rem">The selected time range <strong style="color:var(--text-primary)">10:00 – 11:30</strong> on <strong style="color:var(--text-primary)">29 Aug 2026</strong> overlaps with an existing reservation.</p>
+        <div class="conflict-existing glass-card" style="padding:1rem;border:1px solid rgba(245,158,11,.3)">
+          <div style="font-weight:600;color:var(--text-primary)">Client Presentation — Project Alpha</div>
+          <div style="color:var(--text-secondary);font-size:.85rem;margin-top:.25rem">Diana Putri • PT Solusi Digital</div>
+          <div style="color:#f59e0b;font-size:.85rem;margin-top:.25rem">10:00 – 11:00</div>
+        </div>
+        <p style="color:var(--text-muted);font-size:.85rem;margin-top:1rem">Please choose a different time slot.</p>
+      </div>
+      <div class="modal-footer" style="justify-content:center">
+        <button class="btn btn-primary" onclick="returnToTimeSelection()">Choose Another Time</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- MODAL: New User (Admin)                      -->
+  <!-- ============================================ -->
+  <div class="modal-overlay" id="modal-new-user" onclick="closeModalOnOverlay(event)">
+    <div class="modal glass-card animate-in">
+      <div class="modal-header">
+        <h2 class="modal-title">Add New User</h2>
+        <button class="modal-close" onclick="closeModal('modal-new-user')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form class="booking-form" onsubmit="return false;">
+          <div class="form-row-2col">
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <div class="input-wrapper"><input class="form-input" type="text" placeholder="John Doe"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Company</label>
+              <div class="input-wrapper"><input class="form-input" type="text" placeholder="PT Company Name"></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <div class="input-wrapper"><input class="form-input" type="email" placeholder="name@company.com"></div>
+          </div>
+          <div class="form-row-2col">
+            <div class="form-group">
+              <label class="form-label">Role</label>
+              <select class="form-select">
+                <option>User</option>
+                <option>Receptionist</option>
+                <option>Administrator</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Temporary Password</label>
+              <div class="input-wrapper"><input class="form-input" type="text" value="Temp@12345" readonly style="opacity:.7"></div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('modal-new-user')">Cancel</button>
+        <button class="btn btn-primary" onclick="closeModal('modal-new-user');showToast('User created successfully!','success')">Create User</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Demo Navigation (floating) -->
+  <div class="demo-nav">
+    <span class="demo-nav-label">Demo Screens:</span>
+    <button class="demo-btn" onclick="showScreen('screen-login')">Login</button>
+    <button class="demo-btn" onclick="showScreen('screen-register')">Register</button>
+    <button class="demo-btn" onclick="showScreen('screen-forgot')">Forgot PW</button>
+    <button class="demo-btn demo-btn--active" onclick="showScreen('screen-dashboard')">Dashboard</button>
+    <button class="demo-btn" onclick="showModal('modal-conflict')">Conflict Popup</button>
+  </div>
+
+  <script src="demo.js"></script>
+</body>
+</html>

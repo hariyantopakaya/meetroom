@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String               @id @default(uuid())
+  email        String               @unique
+  passwordHash String
+  fullName     String
+  company      String
+  role         String               @default("USER") // "ADMIN", "RECEPTIONIST", "USER"
+  isActive     Boolean              @default(true)
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  bookings     Booking[]
+  resetTokens  PasswordResetToken[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model Room {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  capacity    Int       @default(10)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  bookings    Booking[]
+}
+
+model Booking {
+  id                  String              @id @default(uuid())
+  userId              String
+  user                User                @relation(fields: [userId], references: [id])
+  roomId              String
+  room                Room                @relation(fields: [roomId], references: [id])
+  bookingDate         String              // "YYYY-MM-DD"
+  startTime           String              // "HH:mm"
+  endTime             String              // "HH:mm"
+  topic               String
+  status              String              @default("CONFIRMED") // "CONFIRMED", "RESCHEDULED", "CANCELLED"
+  originalDate        String?
+  originalStartTime   String?
+  originalEndTime     String?
+  rescheduleCount     Int                 @default(0)
+  wifiSsid            String?
+  wifiPassword        String?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  rescheduleHistories RescheduleHistory[]
+
+  @@index([bookingDate, startTime, endTime])
+  @@index([userId])
+  @@index([status])
+}
+
+model RescheduleHistory {
+  id           String   @id @default(uuid())
+  bookingId    String
+  booking      Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  oldDate      String
+  oldStartTime String
+  oldEndTime   String
+  newDate      String
+  newStartTime String
+  newEndTime   String
+  reason       String?
+  createdAt    DateTime @default(now())
+
+  @@index([bookingId])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([tokenHash])
+  @@index([userId])
+}
