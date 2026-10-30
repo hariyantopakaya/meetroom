@@ -45,6 +45,18 @@ async function main() {
     },
   });
 
+  const hariyanto = await prisma.user.create({
+    data: {
+      email: 'hariyantopakaya25@gmail.com',
+      passwordHash: hashedPassword,
+      fullName: 'Hariyanto Pakaya',
+      company: 'Internal',
+      role: 'ADMIN',
+      isActive: true,
+      createdAt: new Date('2026-01-02T08:00:00Z'),
+    },
+  });
+
   const receptionist = await prisma.user.create({
     data: {
       email: 'receptionist@company.com',
@@ -117,7 +129,7 @@ async function main() {
     },
   });
 
-  console.log(`Users seeded: Admin (${admin.email}), Receptionist (${receptionist.email}), Users (Budi, Diana, Rina, Ahmad, Lisa)`);
+  console.log(`Users seeded: Admin (${admin.email}), Admin (${hariyanto.email}), Receptionist (${receptionist.email}), Users (Budi, Diana, Rina, Ahmad, Lisa)`);
 
   // 3. Seed Bookings
   const bookingsData = [
