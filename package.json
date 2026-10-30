@@ -10,6 +10,7 @@
     "prisma:push": "prisma db push",
     "db:migrate": "prisma migrate deploy",
     "bootstrap:admin": "node scripts/bootstrap-admin.js",
+    "ensure:admin": "node scripts/ensure-admin.js",
     "seed": "node prisma/seed.js",
     "test:api": "node test/api.test.js",
     "test:production": "node --test test/production.test.js"

@@ -28,6 +28,11 @@ services:
       SMTP_USER: ${SMTP_USER:?Set SMTP_USER in .env.production}
       SMTP_PASS: ${SMTP_PASS:?Set SMTP_PASS in .env.production}
       SMTP_FROM: ${SMTP_FROM:?Set SMTP_FROM in .env.production}
+      # Default admin account — created automatically on first start (safe to rerun).
+      ENSURE_ADMIN_EMAIL: ${ENSURE_ADMIN_EMAIL:-hariyantopakaya25@gmail.com}
+      ENSURE_ADMIN_NAME: ${ENSURE_ADMIN_NAME:-Hariyanto Pakaya}
+      ENSURE_ADMIN_COMPANY: ${ENSURE_ADMIN_COMPANY:-Internal}
+      ENSURE_ADMIN_PASSWORD: ${ENSURE_ADMIN_PASSWORD:?Set ENSURE_ADMIN_PASSWORD in .env.production}
     volumes:
       - app_data:/app/data
     healthcheck:
